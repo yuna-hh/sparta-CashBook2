@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -89,21 +90,64 @@ const StJoin = styled.div`
 `;
 
 const Join = () => {
+  const [joinId, setJoinId] = useState("");
+  const [joinPassword, setJoinPassword] = useState("");
+  const [joinNickName, setJoinNickName] = useState("");
+
+  const joinFormHandler = (e) => {
+    e.preventDefault();
+  };
+
+  const joinIdHandler = (e) => {
+    setJoinId(e.target.value);
+  };
+
+  const joinPasswordHandler = (e) => {
+    setJoinPassword(e.target.value);
+  };
+
+  const joinNickNameHandler = (e) => {
+    setJoinNickName(e.target.value);
+  };
   return (
     <>
       <Stwrap>
         <StLoginContainer>
-          <StLoginbox>
+          <StLoginbox onSubmit={joinFormHandler}>
             <span>JOIN</span>
-            <input type="text" placeholder="ID" />
-            <input type="text" placeholder="PASSWORD" />
-            <input type="text" placeholder="NICKNAME" />
+            <input
+              value={joinId}
+              onChange={joinIdHandler}
+              type="text"
+              placeholder="ID"
+              pattern="^[A-Za-z0-9].{3,9}$"
+              title="4자 이상 10자 이내로 입력하세요(영어, 숫자)"
+              required
+            />
+            <input
+              value={joinPassword}
+              onChange={joinPasswordHandler}
+              type="password"
+              placeholder="PASSWORD"
+              pattern="^[A-Za-z0-9].{3,14}$"
+              title="4자 이상 15자 이내로 입력하세요(영어, 숫자)"
+              required
+            />
+            <input
+              value={joinNickName}
+              onChange={joinNickNameHandler}
+              type="text"
+              placeholder="NICKNAME"
+              pattern="^[가-힣a-zA-Z0-9\s]{1,10}$"
+              title="1자 이상 10자 이내로 입력하세요"
+              required
+            />
             <StBtnBox>
               <Link to={"/login"}>
-                <button>로그인 하기</button>
+                <button type="button">로그인 하기</button>
               </Link>
               <StJoin>
-                <button>가입하기</button>
+                <button type="submit">가입하기</button>
               </StJoin>
             </StBtnBox>
           </StLoginbox>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -81,13 +82,43 @@ const StJoin = styled.div`
 `;
 
 const Login = () => {
+  const [inputId, setInputID] = useState("");
+  const [inputPassword, setInputPassword] = useState("");
+
+  const LoginFormHandler = (e) => {
+    e.preventDefault();
+    console.log(inputId, inputPassword);
+  };
+  const inputIdHandler = (e) => {
+    setInputID(e.target.value);
+  };
+  const inputPasswordHandler = (e) => {
+    setInputPassword(e.target.value);
+  };
   return (
     <>
       <Stwrap>
         <StLoginContainer>
-          <StLoginbox>
-            <input type="text" placeholder="ID" />
-            <input type="text" placeholder="PASSWORD" />
+          <StLoginbox onSubmit={LoginFormHandler}>
+            <input
+              onChange={inputIdHandler}
+              value={inputId}
+              type="text"
+              placeholder="ID"
+              pattern="^[A-Za-z0-9].{3,9}$"
+              // 점검하기 글자 수 제한 부분 이상해ㅐㅐㅐ
+              title="4자 이상 10자 이내 영어, 숫자로 입력하세요"
+              required
+            />
+            <input
+              onChange={inputPasswordHandler}
+              value={inputPassword}
+              type="password"
+              placeholder="PASSWORD"
+              pattern="^[A-Za-z0-9].{3,14}$"
+              title="4자 이상 15자 이내 영어, 숫자로 입력하세요"
+              required
+            />
             <StBtnBox>
               <button>로그인 하기</button>
               <StJoin>
