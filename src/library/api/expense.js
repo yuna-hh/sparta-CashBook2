@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const JsonServer = "http://localhost:5000";
+const JsonServer = "https://dark-crystal-octagon.glitch.me";
 
 export const getExpense = async () => {
   try {
