@@ -1,10 +1,8 @@
 import React from "react";
-import axios from "axios";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useQuery } from "@tanstack/react-query";
 const StHeader = styled.header`
   display: flex;
   align-items: center;
@@ -62,28 +60,8 @@ const Stprofile = styled.div`
 `;
 
 const Header = () => {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout, userInfo } = useContext(AuthContext);
 
-  const accessToken = localStorage.getItem("accessToken");
-
-  const getUserInfo = async (accessToken) => {
-    const { data } = await axios.get(
-      "https://moneyfulpublicpolicy.co.kr/user",
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-    return data;
-  };
-
-  const { data: userInfo } = useQuery({
-    queryKey: ["userInfo"],
-    queryFn: () => getUserInfo(accessToken),
-  });
-  console.log(userInfo);
   return (
     <StHeader>
       <Link to={"/"}>
@@ -93,7 +71,7 @@ const Header = () => {
         <StUserBox>
           <Stprofile>
             <Link to={"/mypage"}>
-              <img src={userInfo?.avatar} />
+              <img src={userInfo?.avatar} alt="User Avatar" />
             </Link>
           </Stprofile>
           <span>{userInfo?.nickname}</span>
@@ -106,23 +84,8 @@ const Header = () => {
           </Link>
         </StBtn>
       )}
-      {/* <StBtn>
-        <Link to={"/login"}>
-          <button>로그인</button>
-        </Link>
-      </StBtn>
-      <StUserBox>
-        <Stprofile>
-          <Link to={"/mypage"}>
-            <img src="/default-user-profile.png" />
-          </Link>
-        </Stprofile>
-        <span>userId</span>
-        <button>로그아웃</button>
-      </StUserBox> */}
     </StHeader>
   );
-  // return null;
 };
 
 export default Header;

@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useQuery } from "@tanstack/react-query";
-import { getExpense } from "../library/api/expense";
+import { getExpenseByMonth } from "../library/api/expense";
 const StListLi = styled.li`
   display: flex;
   justify-content: space-between;
@@ -31,36 +31,39 @@ const StPrice = styled.div`
 `;
 
 const CashItem = () => {
-  const cashArray = useSelector((state) => state.cashbook.list);
+  // const cashArray = useSelector((state) => state.cashbook.list);
   const clickMonth = useSelector((state) => state.cashbook.month);
   const {
-    data: expenses = [],
+    data: expenses,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["expenses"],
-    queryFn: getExpense,
+    queryKey: ["expenses", clickMonth],
+    queryFn: () => getExpenseByMonth(clickMonth),
   });
-  console.log("isLoading:", isLoading);
-  console.log("expenses:", expenses);
-  const filteredMonth = cashArray.filter((item) => {
-    return clickMonth === item.month;
-  });
-  console.log(cashArray);
+  console.log(expenses);
+  if (isLoading) {
+    return <div>로딩중 입니다.</div>;
+  }
+  // const filteredMonth = expenses?.filter((item) => {
+  //   return clickMonth === item.month;
+  // });
+  // console.log(cashArray);
   return (
     <>
-      {filteredMonth.map((item) => {
+      {expenses.map((expenses) => {
         return (
-          <Link to={`/detail/${item.id}`} key={item.id}>
+          <Link to={`/detail/${expenses?.id}`} key={expenses?.id}>
             <StListLi>
               <div>
-                <StDate>{item.date}</StDate>
+                <StDate>{expenses?.date}</StDate>
                 <StSpanDiv>
-                  <span>{item.category} - </span>
-                  <span>{item.contents}</span>
+                  <span>{expenses?.item} - </span>
+                  <span>{expenses?.description}</span>
+                  <span> ( 👤 {expenses?.createdBy} )</span>
                 </StSpanDiv>
               </div>
-              <StPrice> ✔️ {item.price}</StPrice>
+              <StPrice> ✔️ {expenses?.amount}</StPrice>
             </StListLi>
           </Link>
         );

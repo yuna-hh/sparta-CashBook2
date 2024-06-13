@@ -1,9 +1,11 @@
 import axios from "axios";
 import React from "react";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 const Stwrap = styled.div`
   display: flex;
   align-items: center;
@@ -81,12 +83,15 @@ const StBox = styled.div`
 `;
 
 const Mypage = () => {
+  const { fetchUserInfo } = useContext(AuthContext);
   const [nickname, setNickname] = useState("");
   const [avatar, setAvatar] = useState("");
   // 파일을 보낼때
   const [preview, setPreview] = useState("");
   // 선택할 파일을 보여줄때
   const accessToken = localStorage.getItem("accessToken");
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const getUserInfo = async (accessToken) => {
     const { data } = await axios.get(
@@ -105,23 +110,20 @@ const Mypage = () => {
     queryKey: ["userInfo"],
     queryFn: () => getUserInfo(accessToken),
   });
-  console.log(userInfo);
+
   useEffect(() => {
     if (userInfo) {
       setNickname(userInfo.nickname);
     }
   }, [userInfo]);
 
-  const Formhandler = async (e) => {
-    e.preventDefault();
-
-    // const formData = new FormData();
-    // formData.append("avatar", image);
-    // formData.append("nickname", nickname);
-    // console.log(formData);
-    const response = await axios.patch(
+  const updateProfile = async ({ avatar, nickname }) => {
+    const formData = new FormData();
+    formData.append("avatar", avatar);
+    formData.append("nickname", nickname);
+    const { data } = await axios.patch(
       "https://moneyfulpublicpolicy.co.kr/profile",
-      { avatar, nickname },
+      formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -129,18 +131,32 @@ const Mypage = () => {
         },
       }
     );
-    console.log(response);
+
+    return data;
+  };
+
+  const profileMutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: async () => {
+      await fetchUserInfo(accessToken);
+      queryClient.invalidateQueries(["userInfo"]);
+    },
+    onSettled: () => {
+      navigate("/");
+    },
+  });
+
+  const Formhandler = async (e) => {
+    e.preventDefault();
+    profileMutation.mutate({ avatar, nickname });
   };
   const nicknameInput = (e) => {
     setNickname(e.target.value);
   };
 
   const imageInput = (e) => {
-    // console.log(e.target.files);
-    // setImage(e.target.files[0]);
     let file = e.target.files[0];
     setAvatar(file);
-    console.log(file);
     let fileRead = new FileReader();
     fileRead.onload = function () {
       setPreview(fileRead.result);
@@ -148,8 +164,7 @@ const Mypage = () => {
 
     fileRead.readAsDataURL(file);
   };
-  console.log(avatar);
-  // const newImageUrl = setImage();
+
   return (
     <Stwrap>
       <StContainer>
@@ -171,6 +186,7 @@ const Mypage = () => {
             <input
               className="imageInput"
               type="file"
+              accept="image/*"
               onChange={imageInput}
               id="image"
             />
@@ -178,7 +194,8 @@ const Mypage = () => {
             {preview && <img src={preview} />}
             {/* <img src={image} /> */}
           </StBox>
-          <button>프로필 업데이트</button>
+
+          <button type="submit">프로필 업데이트</button>
         </StFormBox>
       </StContainer>
     </Stwrap>

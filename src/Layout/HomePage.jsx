@@ -18,7 +18,7 @@ const StLayout = styled.div`
   gap: 30px;
   width: 1200px;
   background-color: #fff08c;
-  margin: 0 auto;
+  margin-top: 300px;
   padding: 30px;
   border-radius: 10px;
   box-sizing: border-box;

@@ -1,10 +1,10 @@
 import React from "react";
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { addCashList, setMonth } from "../store/slices/cashBookSlice";
-
+import { setMonth } from "../store/slices/cashBookSlice";
+import { addExpense } from "../library/api/expense";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 const Stform = styled.form`
   display: flex;
   align-items: flex-end;
@@ -46,6 +46,14 @@ const CashInput = () => {
   const [price, setPrice] = useState("");
   const [contents, setContents] = useState("");
   const [date, setDate] = useState("");
+
+  const queryclient = useQueryClient();
+  const mutationAdd = useMutation({
+    mutationFn: (newItem) => addExpense(newItem),
+    onSuccess: () => {
+      queryclient.invalidateQueries(["expenses"]);
+    },
+  });
   const validation = () => {
     if (!category || !price || !date || !contents) {
       alert("모든 항목을 입력해주세요.");
@@ -59,16 +67,15 @@ const CashInput = () => {
     if (!isValid) return;
     const monthArray = date.split("-");
     const newItem = {
-      id: uuidv4(),
-      category,
-      price,
-      date,
+      date: date,
+      item: category,
+      amount: price,
+      description: contents,
       month: Number(monthArray[1]),
-      contents,
     };
     dispatch(setMonth(newItem.month));
     localStorage.setItem("month", newItem.month);
-    dispatch(addCashList(newItem));
+    mutationAdd.mutate(newItem);
   };
 
   const dateHandler = (event) => {
