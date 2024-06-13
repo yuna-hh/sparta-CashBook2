@@ -1,6 +1,7 @@
+import axios from "axios";
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Stwrap = styled.div`
@@ -93,9 +94,27 @@ const Join = () => {
   const [joinId, setJoinId] = useState("");
   const [joinPassword, setJoinPassword] = useState("");
   const [joinNickName, setJoinNickName] = useState("");
-
-  const joinFormHandler = (e) => {
+  const navigate = useNavigate();
+  const joinFormHandler = async (e) => {
     e.preventDefault();
+    try {
+      const response = await axios.post(
+        "https://moneyfulpublicpolicy.co.kr/register",
+        {
+          id: joinId,
+          password: joinPassword,
+          nickname: joinNickName,
+        }
+      );
+      const data = response.data;
+      if (data.success) {
+        navigate("/login");
+      }
+      console.log(response);
+    } catch (error) {
+      alert("Login failed");
+      console.log(error);
+    }
   };
 
   const joinIdHandler = (e) => {

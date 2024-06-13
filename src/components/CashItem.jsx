@@ -2,7 +2,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-
+import { useQuery } from "@tanstack/react-query";
+import { getExpense } from "../library/api/expense";
 const StListLi = styled.li`
   display: flex;
   justify-content: space-between;
@@ -32,6 +33,16 @@ const StPrice = styled.div`
 const CashItem = () => {
   const cashArray = useSelector((state) => state.cashbook.list);
   const clickMonth = useSelector((state) => state.cashbook.month);
+  const {
+    data: expenses = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["expenses"],
+    queryFn: getExpense,
+  });
+  console.log("isLoading:", isLoading);
+  console.log("expenses:", expenses);
   const filteredMonth = cashArray.filter((item) => {
     return clickMonth === item.month;
   });

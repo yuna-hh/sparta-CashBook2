@@ -1,7 +1,9 @@
 import React from "react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
 
 const Stwrap = styled.div`
   width: 100vw;
@@ -84,10 +86,27 @@ const StJoin = styled.div`
 const Login = () => {
   const [inputId, setInputID] = useState("");
   const [inputPassword, setInputPassword] = useState("");
-
-  const LoginFormHandler = (e) => {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const LoginFormHandler = async (e) => {
     e.preventDefault();
-    console.log(inputId, inputPassword);
+    try {
+      const response = await axios.post(
+        "https://moneyfulpublicpolicy.co.kr/login",
+        {
+          id: inputId,
+          password: inputPassword,
+        }
+      );
+      const data = response.data;
+      if (data.success) {
+        login(data.accessToken);
+        navigate("/mypage");
+      }
+    } catch (error) {
+      console.log("Login error:", error);
+      alert("Login failed");
+    }
   };
   const inputIdHandler = (e) => {
     setInputID(e.target.value);
